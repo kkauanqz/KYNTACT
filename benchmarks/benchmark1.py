@@ -1,3 +1,4 @@
+from picamera2 import Picamera2
 import cv2
 import pytesseract
 import easyocr
@@ -5,11 +6,11 @@ import time
 
 # vai tomar no cu a PORRA do easyocr é mais pesado do que o GTA V
 
-# caminho pro executável do tesseract (padrão: c:\arquivos de programas\tesseract OU appdata\local\programs)
-pytesseract.pytesseract.tesseract_cmd = r'xx/xx/xx/xx'
-
 # idioma de reconhecimento pt e pt-br do easyocr
 # reader = easyocr.Reader(['pt'])
+
+picam2 = Picamera2()
+picam2.start()
 
 # variavel camera recebe o que o opencv tá capturando como vídeo. 
 # camera = cv2.VideoCapture(0)
@@ -23,10 +24,7 @@ while True:
     # a função .read sempre retorna 2 variáveis em uma ordem definida:
     # a primeira é um boleano que define se o video foi capturado com sucesso (nesse caso status)
     # e a segunda é a imagem q está sendo capturada no momento (nesse caso foto)
-    status, foto = camera.read()
-    if not status:
-        break
-
+    foto = picam2.capture_array()
     # pré-processamento pro pytesseract: transforma RGB em 1 canal para ajudar os OCRs no processamento (gray/BGR2GRAY),
     imgcinza = cv2.cvtColor(foto, cv2.COLOR_BGR2GRAY)
     # e converte a imagem acizentada (gray) em preto e branco para aumentar o contraste entre texto e fundo
@@ -75,7 +73,7 @@ while True:
     time.sleep(0.01)
 
 # libera a câmera
-camera.release()
+picam2.stop()
 
 # fecha tudo
 cv2.destroyAllWindows()
