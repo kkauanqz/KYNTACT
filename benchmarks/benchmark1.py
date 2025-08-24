@@ -4,11 +4,12 @@ import pytesseract
 import easyocr
 import time
 
-# vai tomar no cu a PORRA do easyocr é mais pesado do que o GTA V
+# benchmark1.py: teste inicial, feito no meu PC e no pi3; resultados inconclusivos
 
 # idioma de reconhecimento pt e pt-br do easyocr
 # reader = easyocr.Reader(['pt'])
 
+# inicia a câmera (mudei pra picamera2)
 picam2 = Picamera2()
 picam2.start()
 
@@ -49,8 +50,8 @@ while True:
     # time_easyocr = time.time() - start_time
 
     # desenha os resultados em cima da imagem
-    cv2.putText(foto_pytesseract, f"PyTesseract: {time_pytesseract:.2f}s", (10, 30), 
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+    cv2.putText(foto_pytesseract,  text_pytesseract, (10,70),
+              cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
     cv2.putText(foto_pytesseract, text_pytesseract, (10, 70), 
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
@@ -70,7 +71,7 @@ while True:
         break
 
     # pequena pausa pra aliviar a CPU
-    time.sleep(0.01)
+    time.sleep(1.5)
 
 # libera a câmera
 picam2.stop()
