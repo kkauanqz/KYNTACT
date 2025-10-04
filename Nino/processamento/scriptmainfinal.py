@@ -1,0 +1,94 @@
+import cv2
+import time
+import requests
+import numpy as np
+from picamera2 import Picamera2
+import paho.mqtt.client as mqtt
+import threading
+import os
+
+# url do servidor flask/ngrok fixo
+url_servidor = "https://644491651f34.ngrok-free.app/ocr"
+# fotos por segundo
+fps = 1
+# compressao da imagem jpeg (mais alto = mais qualidade e mais latencia)
+qualidade_jpeg = 80
+# salvar imagem de teste
+salvar_teste = True
+
+# configurações mqtt
+broker = "127.0.0.1" # localhost
+topico = "ocr/palavra"
+
+# inicializa cliente mqtt
+cliente = mqtt.Client()
+# conecta ao broker
+cliente.connect(broker, 1883, 60)
+
+# inicia a câmera
+cam = Picamera2()
+# configura resolucao da camera
+cam.configure(cam.create_still_configuration(main={"size": (1280, 720)})) # resolução HD
+cam.start()
+# espera 1.5s para ajustes automaticos
+time.sleep(1.5)	
+
+# função pra enviar img e receber ocr
+def envioImg(bytes_img):
+    try:
+        arquivos = {'image': ('frame.jpg', bytes_img, 'image/jpeg')}
+        resposta = requests.post(url_servidor, files=arquivos, timeout=15)
+        resultado = resposta.json()
+
+        if "textos" in resultado:
+            textos = [t["text"] for t in resultado["textos"]]
+            print("encontrado:", textos)
+
+            if textos:
+                # envia mensagem mqtt com os textos
+                mensagem = " ".join(textos)
+                cliente.publish(topico, mensagem)
+
+                if salvar_teste:
+                    quadro_teste = cv2.imdecode(np.frombuffer(bytes_img, np.uint8), cv2.IMREAD_COLOR)
+                    for t in resultado["textos"]:
+                        bbox = np.array(t["bbox"], dtype=int)
+                        cv2.polylines(quadro_teste, [bbox], isClosed=True, color=(0,255,0), thickness=2)
+                        cv2.putText(quadro_teste, t["text"], tuple(bbox[0]),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2)
+                    caminho = os.path.expanduser("~/Desktop/nino/testes")
+                    os.makedirs(caminho, exist_ok=True)
+                    cv2.imwrite(f"{caminho}/teste_{int(time.time())}.jpg", quadro_teste)
+
+        else:
+            # caso nao venha textos
+            print("erro servidor:", resultado)
+
+    except Exception as e:
+        # caso ocorra erro de conexão ou exceção
+        print("erro conexao:", e)
+
+
+while True:
+    inicio = time.time()
+
+    # captura imagem
+    quadro = cam.capture_array()
+
+    # remove canal alpha se presente
+    if quadro.shape[2] == 4:
+        quadro = cv2.cvtColor(quadro, cv2.COLOR_BGRA2BGR)
+
+    # converte para jpeg e define qualidade
+    _, buffer = cv2.imencode('.jpg', quadro, [int(cv2.IMWRITE_JPEG_QUALITY), qualidade_jpeg])
+    # transforma em bytes
+    bytes_img = buffer.tobytes()
+
+    # envia imagem em thread separada para não travar loop
+    threading.Thread(target=envioImg, args=(bytes_img,), daemon=True).start()
+
+    # calcula tempo restante para manter fps
+    tempo_passado = time.time() - inicio
+    tempo_espera = max(0, 1.0/fps - tempo_passado)
+    # espera antes do proximo loop
+    time.sleep(tempo_espera)
