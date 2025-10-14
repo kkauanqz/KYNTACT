@@ -3,18 +3,28 @@ import time
 import requests
 import numpy as np
 from picamera2 import Picamera2
+import paho.mqtt.client as mqtt
 import threading
 import os
 import serial
 
 # url do servidor flask/ngrok fixo
-url_servidor = "https://3eed27489550.ngrok-free.app/ocr"
+url_servidor = "https://644491651f34.ngrok-free.app/ocr"
 # fotos por segundo
 fps = 1
 # compressao da imagem jpeg (mais alto = mais qualidade e mais latencia)
 qualidade_jpeg = 80
 # salvar imagem de teste
 salvar_teste = True
+
+# configurações mqtt
+broker = "127.0.0.1" # localhost
+topico = "ocr/palavra"
+
+# inicializa cliente mqtt
+cliente = mqtt.Client()
+# conecta ao broker
+cliente.connect(broker, 1883, 60)
 
 # inicia a câmera
 cam = Picamera2()
@@ -36,11 +46,10 @@ def envioImg(bytes_img):
             print("encontrado:", textos)
 
             if textos:
-                # envia mensagem
-                ser = serial.Serial("/dev/serial0", 9600, timeout=2)
+                # envia mensagem mqtt com os textos
                 mensagem = " ".join(textos)
-                ser.write((mensagem + "\n").encode())
-             
+                cliente.publish(topico, mensagem)
+
                 if salvar_teste:
                     quadro_teste = cv2.imdecode(np.frombuffer(bytes_img, np.uint8), cv2.IMREAD_COLOR)
                     for t in resultado["textos"]:
@@ -51,6 +60,7 @@ def envioImg(bytes_img):
                     caminho = os.path.expanduser("~/Desktop/nino/testes")
                     os.makedirs(caminho, exist_ok=True)
                     cv2.imwrite(f"{caminho}/teste_{int(time.time())}.jpg", quadro_teste)
+
         else:
             # caso nao venha textos
             print("erro servidor:", resultado)

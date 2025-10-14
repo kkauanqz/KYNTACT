@@ -7,7 +7,7 @@ import paho.mqtt.client as mqtt
 import threading
 
 # url do servidor flask/ngrok fixo
-url_servidor = "https://d9404a14953a.ngrok-free.app/ocr"
+url_servidor = "https://3eed27489550.ngrok-free.app/ocr"
 # fotos por segundo
 fps = 1
 # compressao da imagem jpeg (mais alto = mais qualidade e mais latencia)
