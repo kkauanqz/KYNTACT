@@ -51,7 +51,7 @@ def envioImg(bytes_img):
                 # escreve mensagem
                 mensagem = " ".join(textos) + "\n"
 
-               with ser_limit:
+            with ser_limit:
                 # envia mensagem 
                    ser.write((mensagem).encode())
                    ser.flush()
@@ -63,7 +63,7 @@ def envioImg(bytes_img):
                         cv2.polylines(quadro_teste, [bbox], isClosed=True, color=(0,255,0), thickness=2)
                         cv2.putText(quadro_teste, t["text"], tuple(bbox[0]),
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2)
-                    nome_arquivo  = f"{caminho_testes}/teste_{int(time.tine())}.jpg"
+                    nome_arquivo  = f"{caminho_testes}/teste_{int(time.time())}.jpg"
                     cv2.imwrite(nome_arquivo, quadro_teste)
         else:
             # caso nao venha textos
