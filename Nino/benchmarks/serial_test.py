@@ -1,4 +1,4 @@
 import serial
 
 ser = serial.Serial("/dev/serial0", 9600, timeout=2)
-ser.write(b"oi\n")
+ser.write(b"pare\n")
