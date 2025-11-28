@@ -8,25 +8,31 @@ import os
 import serial
 
 # url do servidor flask/ngrok fixo
-url_servidor = "https://3eed27489550.ngrok-free.app/ocr"
+url_servidor = "https://b6ce6055ba35.ngrok-free.app/ocr"
 # fotos por segundo
 fps = 1
 # compressao da imagem jpeg (mais alto = mais qualidade e mais latencia)
-qualidade_jpeg = 70
+qualidade_jpeg = 85
 # resolução da imagem
-largura, altura = 960, 540
+largura, altura = 1280, 720
 # delay entre envios
-delay_envio = 1.5
+delay_envio = 2
 
 # salvar imagem de teste
 salvar_teste = False
 
-caminho_testes = os.path.expanduser("~/Desktop/KYNTACT-local/Nino/testes")
+caminho_testes = os.path.expanduser("~/Desktop/aaa")
 
 # inicia a câmera
 cam = Picamera2()
 # configura resolucao da camera
 cam.configure(cam.create_preview_configuration(main={"size": (largura, altura)})) # resolução HD
+
+cam.set_controls({
+    "AwbEnable": False,
+    "AwbMode": 1  # auto
+})
+
 cam.start()
 # espera 1.5s para ajustes automaticos
 time.sleep(1.5)	
@@ -49,12 +55,13 @@ def envioImg(bytes_img):
 
             if textos:
                 # escreve mensagem
-                mensagem = " ".join(textos) + "\n"
+                mensagem = "".join(textos) + "\n"
+                print(f"+ enviado: [{mensagem}]")
 
-            with ser_limit:
+                with ser_limit:
                 # envia mensagem 
-                   ser.write((mensagem).encode())
-                   ser.flush()
+                    ser.write((mensagem).encode())
+                    ser.flush()
              
                 if salvar_teste:
                     quadro_teste = cv2.imdecode(np.frombuffer(bytes_img, np.uint8), cv2.IMREAD_COLOR)
