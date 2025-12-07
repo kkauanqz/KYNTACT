@@ -8,18 +8,18 @@ import os
 import serial
 
 # url do servidor flask/ngrok fixo
-url_servidor = "https://b6ce6055ba35.ngrok-free.app/ocr"
+url_servidor = "https://f84bccb17512.ngrok-free.app/ocr"
 # fotos por segundo
 fps = 1
 # compressao da imagem jpeg (mais alto = mais qualidade e mais latencia)
 qualidade_jpeg = 85
 # resolução da imagem
-largura, altura = 1280, 720
+largura, altura = 1024, 576
 # delay entre envios
 delay_envio = 2
 
 # salvar imagem de teste
-salvar_teste = False
+salvar_teste = True
 
 caminho_testes = os.path.expanduser("~/Desktop/aaa")
 
