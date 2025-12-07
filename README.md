@@ -1,0 +1,4 @@
+<h1 style="text-align: center;">Kyntact</h1>
+<img src="https://github.com/kkauanqz/KYNTACT/blob/main/Miguel/Logo%20Kyntact%20(1).png" width="400" alt="Logo Kyntact">
+
+O Kyntact é um projeto que consiste em um dispositivo portátil capaz de captar textos por meio de uma câmera, processá-los em um minicomputador e reproduzi-los em braile com solenoides, permitindo que o usuário entenda o conteúdo por meio de relevos táteis. Trata-se de uma solução tecnológica baseada em Internet das Coisas (IoT) voltada à acessibilidade para pessoas com deficiência visual total. Pensando nisso, pode-se idealizar o desenvolvimento de um projeto que busca enfrentar os problemas enfrentados por esse público, como a falta de adaptação em ambientes movimentados, a dificuldade em estudar e ler livros, placas e outras informações que consideramos básicas no dia a dia
